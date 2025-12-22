@@ -1,0 +1,64 @@
+stages:
+  - test
+  - security
+
+variables:
+  PYTHON_VERSION: "3.9"
+
+# Кэширование зависимостей
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python --version
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install -r requirements.txt
+
+# Тестирование
+test:
+  stage: test
+  script:
+    - python -m pytest tests/ -v
+  artifacts:
+    when: always
+    reports:
+      junit: reports/junit.xml
+    paths:
+      - reports/
+    expire_in: 1 week
+
+# Сканирование безопасности
+security-scan:
+  stage: security
+  script:
+    - python run_scanner.py gitlab-scan
+  artifacts:
+    when: always
+    reports:
+      codequality: pysast-artifacts/gl-code-quality-report.json
+      sast: pysast-artifacts/gl-security-report.json
+    paths:
+      - pysast-artifacts/
+    expire_in: 1 month
+  allow_failure: false  # Падение пайплайна при критических уязвимостях
+
+# Сборка отчета безопасности
+security-report:
+  stage: security
+  script:
+    - |
+      echo "## Security Scan Report" > security_report.md
+      echo "### Summary" >> security_report.md
+      echo "- Scan completed at $(date)" >> security_report.md
+      cat pysast-artifacts/security-report.md >> security_report.md 2>/dev/null || echo "No vulnerabilities found"
+  artifacts:
+    paths:
+      - security_report.md
+    expire_in: 1 month
+  only:
+    - merge_requests  # Только для Merge Requests
