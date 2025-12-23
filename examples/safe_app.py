@@ -1,9 +1,8 @@
 """Пример безопасного кода, который не должен содержать уязвимостей"""
 
-import sqlite3
 import json
+import sqlite3
 import subprocess
-import os
 
 
 def safe_sql_query(user_input: str):

@@ -1,8 +1,8 @@
+import json
 import os
 import sys
-import subprocess
-import json
-from typing import Dict, List, Any  # ← Убедитесь, что Any импортирован
+from typing import Dict, Any  # ← Убедитесь, что Any импортирован
+
 from .scanner import PySASTScanner
 
 

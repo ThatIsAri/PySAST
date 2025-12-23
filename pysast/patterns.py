@@ -2,9 +2,9 @@
 Модуль определения шаблонов уязвимостей для Python кода
 """
 
-from dataclasses import dataclass
-from typing import Dict, List, Any, Callable
 import ast
+from dataclasses import dataclass
+from typing import Dict, List, Callable
 
 
 @dataclass

@@ -1,0 +1,7 @@
+attrs~=25.4.0
+wheel~=0.45.1
+protobuf~=6.33.2
+filelock~=3.19.1
+setuptools~=80.9.0
+pyyaml~=6.0.3
+packaging~=25.0

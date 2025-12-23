@@ -1,7 +1,9 @@
 import json
-from typing import List, Dict, Any  # ← Убедитесь, что Any импортирован
-from dataclasses import dataclass, asdict
-from .ast_analyzer import Vulnerability
+from dataclasses import dataclass
+from typing import List, Dict  # ← Убедитесь, что Any импортирован
+
+from ast_analyzer import Vulnerability
+
 
 @dataclass
 class ScanSummary:

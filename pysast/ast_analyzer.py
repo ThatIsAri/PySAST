@@ -1,9 +1,10 @@
 
 import ast
 import os
-from typing import List, Dict, Any, Tuple  # ← Убедитесь, что Any импортирован
 from dataclasses import dataclass
-from .patterns import PatternRegistry, VulnerabilityPattern
+from typing import List, Dict  # ← Убедитесь, что Any импортирован
+
+from patterns import PatternRegistry, VulnerabilityPattern
 
 
 @dataclass
