@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Dict  # ← Убедитесь, что Any импортирован
+from typing import List, Dict
 
 from ast_analyzer import Vulnerability
 
@@ -23,16 +23,7 @@ class ReportGenerator:
 
     def generate_json_report(self, results: Dict[str, List[Vulnerability]],
                              summary: ScanSummary) -> str:
-        """
-        Генерирует отчет в формате JSON
-
-        Args:
-            results: Результаты анализа
-            summary: Сводка сканирования
-
-        Returns:
-            JSON строка с отчетом
-        """
+        """ Генерирует отчет в формате JSON """
         report = {
             "summary": {
                 "total_files": summary.total_files,
@@ -64,22 +55,22 @@ class ReportGenerator:
                                 summary: ScanSummary):
         """Выводит краткий отчет в консоль"""
         print("\n" + "=" * 60)
-        print("📊 ОТЧЕТ АНАЛИЗА БЕЗОПАСНОСТИ PySAST")
+        print("ОТЧЕТ АНАЛИЗА БЕЗОПАСНОСТИ PySAST")
         print("=" * 60)
 
-        print(f"\n📈 Сводка:")
+        print(f"\nСводка:")
         print(f"  Файлов проанализировано: {summary.total_files}")
         print(f"  Уязвимостей найдено: {summary.total_vulnerabilities}")
         print(f"  Время выполнения: {summary.scan_duration:.2f} с")
         print(f"  Дата сканирования: {summary.scan_date}")
 
-        print(f"\n📊 Распределение по серьезности:")
+        print(f"\nРаспределение по серьезности:")
         for severity, count in summary.severity_counts.items():
             if count > 0:
                 print(f"  {severity}: {count}")
 
         print("\n" + "=" * 60)
-        print("🔍 Детали уязвимостей:")
+        print("Детали уязвимостей:")
         print("=" * 60)
 
         total_shown = 0
@@ -91,8 +82,8 @@ class ReportGenerator:
                     print(f"     ID: {vuln.pattern_id}, CWE: {vuln.cwe_id}")
                     print(f"     Рекомендация: {vuln.remediation}")
 
-                    # Показываем только первые 3 строки кода
-                    lines = vuln.code_snippet.split('\n')[:3]
+                    #Показываем только первые 3 строки кода
+                    lines = vuln.code_snippet.split('\n')[:]
                     if len(lines) > 0:
                         print(f"     Код: {lines[0]}")
                         if len(lines) > 1:
@@ -100,10 +91,10 @@ class ReportGenerator:
                                 print(f"           {line}")
 
                     total_shown += 1
-                    if total_shown >= 10:  # Ограничиваем вывод
-                        print(f"\n⚠️  Показано {total_shown} из {len(vulns)} уязвимостей. Полный отчет в файле.")
+                    if total_shown >= 10:  #Ограничиваем вывод
+                        print(f"\n⚠Показано {total_shown} из {len(vulns)} уязвимостей. Полный отчет в файле.")
                         return
 
         if total_shown == 0:
-            print("\n✅ Уязвимостей не обнаружено!")
+            print("\nУязвимостей не обнаружено!")
 

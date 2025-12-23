@@ -3,12 +3,12 @@ import time
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-# Обратите внимание на точку перед импортами - это относительный импорт
+#Относительный импорт
 try:
     from .ast_analyzer import ASTAnalyzer, Vulnerability
     from .report_generator import ReportGenerator, ScanSummary
 except ImportError:
-    # Если относительные импорты не работают
+    #Если относительные импорты не работают
     from ast_analyzer import ASTAnalyzer, Vulnerability
     from report_generator import ReportGenerator, ScanSummary
 
@@ -32,20 +32,18 @@ class PySASTScanner:
         self.scan_results: Dict[str, List[Vulnerability]] = {}
 
     def scan(self, target_path: str) -> Dict[str, List[Vulnerability]]:
-        """
-        Выполняет сканирование указанного пути
-        """
-        print(f"🔍 Начало сканирования: {target_path}")
+        """ Выполняет сканирование указанного пути """
+        print(f"Начало сканирования: {target_path}")
         start_time = time.time()
 
         if os.path.isfile(target_path) and target_path.endswith('.py'):
-            # Сканирование одного файла
+            #Сканирование одного файла
             vulnerabilities = self.analyzer.analyze_file(target_path)
             self.scan_results[target_path] = vulnerabilities
             total_files = 1
 
         elif os.path.isdir(target_path):
-            # Рекурсивное сканирование директории
+            #Рекурсивное сканирование директории
             self.scan_results = self.analyzer.analyze_directory(target_path)
             total_files = len(self.scan_results)
 
@@ -54,11 +52,11 @@ class PySASTScanner:
 
         scan_duration = time.time() - start_time
 
-        # Подсчет уязвимостей по серьезности
+        #Подсчет уязвимостей по серьезности
         severity_counts = self._count_vulnerabilities_by_severity()
         total_vulnerabilities = sum(severity_counts.values())
 
-        # Создание сводки
+        #Создание сводки
         self.summary = ScanSummary(
             total_files=total_files,
             total_vulnerabilities=total_vulnerabilities,
@@ -67,10 +65,10 @@ class PySASTScanner:
             severity_counts=severity_counts
         )
 
-        # Вывод результатов
-        self._print_scan_summary(self.summary)  # ← Этот метод должен вызываться!
+        #Вывод результатов
+        self._print_scan_summary(self.summary)
 
-        return self.scan_results  # ← Важно: возвращаем результаты
+        return self.scan_results
 
     def _count_vulnerabilities_by_severity(self) -> Dict[str, int]:
         """Подсчитывает количество уязвимостей по уровням серьезности"""
@@ -91,7 +89,7 @@ class PySASTScanner:
     def _print_scan_summary(self, summary: ScanSummary):
         """Выводит сводку сканирования в консоль"""
         print("\n" + "=" * 50)
-        print("📊 СВОДКА СКАНИРОВАНИЯ")
+        print("СВОДКА СКАНИРОВАНИЯ")
         print("=" * 50)
         print(f"Файлов проанализировано: {summary.total_files}")
         print(f"Уязвимостей найдено: {summary.total_vulnerabilities}")
@@ -122,39 +120,15 @@ class PySASTScanner:
             print("❌ Отсутствует сводка сканирования.")
             return
 
-        # Генерация отчета
-        if output_format == 'json':
-            report = self.report_generator.generate_json_report(
-                self.scan_results, self.summary)
-            ext = '.json'
-
-        elif output_format == 'html':
-            report = self.report_generator.generate_html_report(
-                self.scan_results, self.summary)
-            ext = '.html'
-
-        elif output_format == 'markdown':
-            report = self.report_generator.generate_markdown_report(
-                self.scan_results, self.summary)
-            ext = '.md'
-
-        elif output_format == 'console':
-            # Выводим отчет прямо в консоль
+        if output_format == 'console':
+            #Выводим отчет в консоль
             self.report_generator.generate_console_report(
                 self.scan_results, self.summary)
-            return  # Не сохраняем в файл
+            return  #Не сохраняем в файл
 
         else:
             raise ValueError(f"Неподдерживаемый формат: {output_format}")
 
-        # Сохранение или вывод отчета
-        if output_file:
-            self.report_generator.save_report(report, output_file)
-        else:
-            # Автоматическое имя файла
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = f"pysast_report_{timestamp}{ext}"
-            self.report_generator.save_report(report, output_file)
 
     def get_vulnerability_stats(self) -> Dict[str, Any]:
         """Возвращает статистику найденных уязвимостей"""

@@ -1,8 +1,7 @@
-
 import ast
 import os
 from dataclasses import dataclass
-from typing import List, Dict  # ← Убедитесь, что Any импортирован
+from typing import List, Dict
 
 from patterns import PatternRegistry, VulnerabilityPattern
 

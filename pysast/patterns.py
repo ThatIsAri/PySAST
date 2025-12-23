@@ -1,6 +1,4 @@
-"""
-Модуль определения шаблонов уязвимостей для Python кода
-"""
+""" Модуль определения шаблонов уязвимостей для Python кода """
 
 import ast
 from dataclasses import dataclass

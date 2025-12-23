@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from typing import Dict, Any  # ← Убедитесь, что Any импортирован
+from typing import Dict, Any
 
 from .scanner import PySASTScanner
 
@@ -33,20 +33,12 @@ class GitLabIntegration:
         return variables
 
     def run_gitlab_scan(self, project_path: str = None) -> Dict[str, Any]:
-        """
-        Запускает сканирование в среде GitLab CI
-
-        Args:
-            project_path: Путь к проекту (по умолчанию CI_PROJECT_DIR)
-
-        Returns:
-            Результаты сканирования
-        """
+        """ Запускает сканирование в среде GitLab CI """
         # Определяем путь к проекту
         if project_path is None:
             project_path = self.gitlab_variables.get('CI_PROJECT_DIR', '.')
 
-        print(f"🚀 Запуск сканирования в GitLab CI")
+        print(f"Запуск сканирования в GitLab CI")
         print(f"Проект: {project_path}")
         print(f"Ветка: {self.gitlab_variables.get('CI_COMMIT_REF_NAME', 'unknown')}")
         print(f"Коммит: {self.gitlab_variables.get('CI_COMMIT_SHA', 'unknown')[:8]}")
@@ -63,11 +55,11 @@ class GitLabIntegration:
 
         # Если есть критические уязвимости, завершаем с ошибкой
         if critical_count > 0:
-            print(f"❌ Найдено критических уязвимостей: {critical_count}")
+            print(f"Найдено критических уязвимостей: {critical_count}")
             print("Статус пайплайна: FAILED")
             sys.exit(1)
         else:
-            print("✅ Критических уязвимостей не обнаружено")
+            print("Критических уязвимостей не обнаружено")
             print("Статус пайплайна: PASSED")
 
         return results
@@ -85,12 +77,6 @@ class GitLabIntegration:
             output_file=os.path.join(artifacts_dir, 'gl-security-report.json')
         )
 
-        # 2. HTML отчет для скачивания
-        self.scanner.generate_report(
-            output_format='html',
-            output_file=os.path.join(artifacts_dir, 'security-report.html')
-        )
-
         # 3. Markdown отчет для Merge Request
         self.scanner.generate_report(
             output_format='markdown',
@@ -100,7 +86,7 @@ class GitLabIntegration:
         # 4. GitLab Code Quality Report
         self._generate_gitlab_code_quality_report(results, artifacts_dir)
 
-        print(f"📁 Отчеты сохранены в директории: {artifacts_dir}")
+        print(f"Отчеты сохранены в директории: {artifacts_dir}")
 
     def _generate_gitlab_code_quality_report(self, results: Dict[str, Any],
                                              artifacts_dir: str):
@@ -134,30 +120,22 @@ class GitLabIntegration:
         with open(report_path, 'w', encoding='utf-8') as f:
             json.dump(code_quality_report, f, indent=2, ensure_ascii=False)
 
-        print(f"📊 GitLab Code Quality отчет создан: {report_path}")
+        print(f"GitLab Code Quality отчет создан: {report_path}")
 
     def create_merge_request_comment(self, results: Dict[str, Any]) -> str:
-        """
-        Создает комментарий для Merge Request с результатами сканирования
-
-        Args:
-            results: Результаты сканирования
-
-        Returns:
-            Markdown текст для комментария
-        """
+        """ Создает комментарий для Merge Request с результатами сканирования """
         stats = self.scanner.get_vulnerability_stats()
 
-        comment = f"""## 🔒 Результаты сканирования безопасности PySAST
+        comment = f"""## Результаты сканирования безопасности PySAST
 
-**Статус:** {'❌ **FAILED**' if stats.get('severity_counts', {}).get('CRITICAL', 0) > 0 else '✅ **PASSED**'}
+**Статус:** {'**FAILED**' if stats.get('severity_counts', {}).get('CRITICAL', 0) > 0 else '✅ **PASSED**'}
 
-### 📊 Статистика:
+### Статистика:
 - Проанализировано файлов: {stats.get('total_files', 0)}
 - Найдено уязвимостей: {stats.get('total_vulnerabilities', 0)}
 - Дата сканирования: {stats.get('scan_date', 'N/A')}
 
-### 🚨 Распределение по серьезности:
+### Распределение по серьезности:
 """
 
         severity_emoji = {
