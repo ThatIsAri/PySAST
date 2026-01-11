@@ -1,11 +1,11 @@
 stages:
   - test
   - security
+  - deploy
 
 variables:
   PYTHON_VERSION: "3.9"
 
-# Кэширование зависимостей
 cache:
   key: "${CI_COMMIT_REF_SLUG}"
   paths:
@@ -20,7 +20,7 @@ before_script:
   - pip install -r requirements.txt
 
 # Тестирование
-test:
+unit-tests:
   stage: test
   script:
     - python -m pytest tests/ -v
@@ -36,29 +36,65 @@ test:
 security-scan:
   stage: security
   script:
-    - python run_scanner.py gitlab-scan
+    - python run_scanner.py gitlab-scan --path "$CI_PROJECT_DIR"
   artifacts:
     when: always
     reports:
-      codequality: pysast-artifacts/gl-code-quality-report.json
       sast: pysast-artifacts/gl-security-report.json
+      codequality: pysast-artifacts/gl-code-quality-report.json
     paths:
       - pysast-artifacts/
     expire_in: 1 month
-  allow_failure: false  # Падение пайплайна при критических уязвимостях
+  allow_failure: false
 
-# Сборка отчета безопасности
-security-report:
+# Сканирование только измененных файлов (для MR)
+security-scan-mr:
   stage: security
   script:
     - |
-      echo "## Security Scan Report" > security_report.md
-      echo "### Summary" >> security_report.md
-      echo "- Scan completed at $(date)" >> security_report.md
-      cat pysast-artifacts/security-report.md >> security_report.md 2>/dev/null || echo "No vulnerabilities found"
+      echo "Scanning changed files in Merge Request..."
+      # Получаем список измененных файлов
+      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        changed_files=$(git diff --name-only origin/$CI_DEFAULT_BRANCH...HEAD)
+        echo "Changed files:"
+        echo "$changed_files"
+        
+        # Сканируем каждый измененный файл
+        for file in $changed_files; do
+          if [[ $file =~ \.(py|java|php)$ ]] && [ -f "$file" ]; then
+            echo "Scanning $file..."
+            python run_scanner.py scan "$file" --no-exit || true
+          fi
+        done
+      else
+        echo "Not a merge request, skipping changed files scan"
+      fi
+  only:
+    - merge_requests
+
+# Анализ рисков
+risk-assessment:
+  stage: security
+  script:
+    - python run_scanner.py risk-assessment . --format json --output risk-assessment.json
   artifacts:
     paths:
-      - security_report.md
+      - risk-assessment.json
     expire_in: 1 month
   only:
-    - merge_requests  # Только для Merge Requests
+    - main
+    - develop
+    - merge_requests
+
+# Сборка документации
+build-docs:
+  stage: deploy
+  script:
+    - echo "Building documentation..."
+    - python -c "import pysast; print(f'PySAST version: {pysast.__version__}')" > VERSION.md
+  artifacts:
+    paths:
+      - VERSION.md
+    expire_in: 1 week
+  only:
+    - main
