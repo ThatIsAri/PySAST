@@ -1,5 +1,4 @@
-# Создайте файл .gitignore
-cat > .gitignore << 'EOF'
+```gitignore
 # Python
 __pycache__/
 *.py[cod]
@@ -28,13 +27,11 @@ venv/
 env/
 .venv/
 
-# PyCharm
+# IDE
 .idea/
 *.iml
 *.ipr
 *.iws
-
-# VS Code
 .vscode/
 *.code-workspace
 
@@ -46,8 +43,18 @@ pysast-artifacts/
 reports/
 *.log
 test.db
+*.db
+
+# Test files
+test_*.py
+temp_*.py
 
 # Operating System
 .DS_Store
 Thumbs.db
-EOF
+
+# CI/CD artifacts
+artifacts/
+coverage.xml
+*.coverage
+.pytest_cache/

@@ -1,11 +1,19 @@
-attrs~=25.4.0
-wheel~=0.45.1
-protobuf~=6.33.2
-filelock~=3.19.1
-setuptools~=80.9.0
-pyyaml~=6.0.3
-packaging~=25.0
-pip~=25.3
-jinja2~=3.1.6
-markupsafe~=3.0.3
-flask~=3.1.2
+# Основные зависимости
+astunparse>=1.6.3
+javalang>=0.13.0
+Jinja2>=3.0.0
+colorama>=0.4.4
+pygments>=2.10.0
+
+# Для отчетов
+jinja2>=3.0.0
+markdown>=3.3.4
+
+# Для тестирования
+pytest>=6.2.5
+pytest-cov>=2.12.1
+
+# Для разработки
+black>=21.7b0
+flake8>=3.9.2
+mypy>=0.910
